@@ -61,3 +61,11 @@ class IntervalTestCase(unittest.TestCase):
             self.assertTrue(intvl3.contains(n))
         self.assertFalse(intvl3.contains(-3))
         self.assertFalse(intvl3.contains(2))
+
+        # Even though intervals are bounded only by integers, no reason we
+        # should necessarily throw an exception if user asks if interval contains
+        # a non-integer
+        self.assertTrue(intvl3.contains(-2.5))
+        self.assertTrue(intvl3.contains(0.999))
+        self.assertFalse(intvl3.contains(-3.0))
+        self.assertFalse(intvl3.contains(1.01))

@@ -99,6 +99,14 @@ class interval(object):
             self.lower_is_inclusive, self.upper_is_inclusive) = parse_interval(interval_string)
         self.validate_interval()
 
+    def __str__(self):
+        return "%s%d, %d%s" % (
+            "[" if self.lower_is_inclusive else "(",
+            self.lower_bound,
+            self.upper_bound,
+            "]" if self.upper_is_inclusive else ")"
+        )
+
     def validate_interval(self):
         '''Tests whether the parsed interval is valid.
         If not, raises an InvalidIntervalException.'''
@@ -120,4 +128,20 @@ class interval(object):
             raise InvalidIntervalException("Invalid interval. Lower bound cannot be greater than upper bound")
 
     def contains(self, number):
-        pass
+        '''Returns True if number is contained in interval, False otherwise'''
+        # Rather than testing if number is in interval, we actually go through
+        # each case where number would NOT be in the interval, returning False
+        # if any test succeeds. If we get to the end without having returned,
+        # it therefore means the number is within the interval (return True)
+        if self.lower_is_inclusive and number < self.lower_bound:
+            return False
+        elif not self.lower_is_inclusive and number <= self.lower_bound:
+            return False
+
+        if self.upper_is_inclusive and number > self.upper_bound:
+            return False
+        elif not self.upper_is_inclusive and number >= self.upper_bound:
+            return False
+
+        # number doesn't fail any test, so it must be in the interval
+        return True
