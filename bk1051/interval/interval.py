@@ -8,6 +8,9 @@ import re
 class IntervalParseException(Exception):
     pass
 
+class InvalidIntervalException(Exception):
+    pass
+
 def parse_interval(interval_string):
     """Method to parse a interval string.
 
@@ -92,6 +95,29 @@ class interval(object):
         '''
         Constructor
         '''
-        #self.bounds
-        #self.inclusive
-    
+        (self.lower_bound, self.upper_bound,
+            self.lower_is_inclusive, self.upper_is_inclusive) = parse_interval(interval_string)
+        self.validate_interval()
+
+    def validate_interval(self):
+        '''Tests whether the parsed interval is valid.
+        If not, raises an InvalidIntervalException.'''
+        if self.lower_bound < self.upper_bound - 1:
+            # Valid regardless of whether bounds are inclusive
+            return
+        elif self.lower_bound < self.upper_bound:
+            # Only valid if at least one bound is inclusive
+            if self.lower_is_inclusive or self.upper_is_inclusive:
+                return
+            else:
+                raise InvalidIntervalException("Invalid interval. Lower bound must be < upper bound - 1 for open intervals")
+        elif self.lower_bound == self.upper_bound:
+            if self.lower_is_inclusive and self.upper_is_inclusive:
+                return
+            else:
+                raise InvalidIntervalException("Invalid interval. Lower and upper bounds can only be equal for closed intervals")
+        else:
+            raise InvalidIntervalException("Invalid interval. Lower bound cannot be greater than upper bound")
+
+    def contains(self, number):
+        pass
