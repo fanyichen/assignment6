@@ -5,6 +5,9 @@ Created on Oct 24, 2015
 '''
 import re
 
+class IntervalParseException(Exception):
+    pass
+
 def parse_interval(interval_string):
     """Method to parse a interval string.
 
@@ -29,22 +32,30 @@ def parse_interval(interval_string):
     (-1, 3, True, False)
 
     >>> parse_interval("[-1, 3.5)")
-    Raises exception: needs to be an integer
-    (-1, 3.5, True, False)
+    Traceback (most recent call last):
+        ...
+    IntervalParseException: Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.
+
 
     >>> parse_interval("[0 13]")
-    Raises exception: no comma
+    Traceback (most recent call last):
+        ...
+    IntervalParseException: Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.
 
     >>> parse_interval("{12, 15}")
-    Raises exception: braces instead of valid delimiters
+    Traceback (most recent call last):
+        ...
+    IntervalParseException: Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.
 
     >>> parse_interval("12, 15")
-    Raises exception, no delimiters
+    Traceback (most recent call last):
+        ...
+    IntervalParseException: Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.
 
     Note, as shown in following test, that this method does not validate
-    the actual interval (i.e. checking that lower bound is below upper
-    bound); that is done in _validate_interval.
-    >>> _parse_interval("(300, -300]")
+    the actual interval.
+
+    >>> parse_interval("(300, -300]")
     (300, -300, False, True)
     """
     parse_regex = re.compile(r'^\s*([[(])\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*([])])\s*$')
@@ -57,7 +68,7 @@ def parse_interval(interval_string):
         return (lower_bound, upper_bound, lower_inclusive, upper_inclusive)
 
     else:
-        raise Exception
+        raise IntervalParseException("Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.")
 
 
 class bound(object):
@@ -83,3 +94,4 @@ class interval(object):
         '''
         #self.bounds
         #self.inclusive
+    
