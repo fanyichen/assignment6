@@ -36,13 +36,13 @@ def parse_interval(interval_string):
     IntervalParseException.
 
     >>> parse_interval("(0,1)")
-    (0, 1, False, False)
+    (False, 0, 1, False)
 
     >>> parse_interval("[0,1]")
-    (0, 1, True, True)
+    (True, 0, 1, True)
 
     >>> parse_interval("[-1, 3)")
-    (-1, 3, True, False)
+    (True, -1, 3, False)
 
     >>> parse_interval("[-1, 3.5)")
     Traceback (most recent call last):
@@ -69,7 +69,7 @@ def parse_interval(interval_string):
     the actual interval.
 
     >>> parse_interval("(300, -300]")
-    (300, -300, False, True)
+    (False, 300, -300, True)
     """
     parse_regex = re.compile(r'^\s*([[(])\s*([-+]?\d+)\s*,\s*([-+]?\d+)\s*([])])\s*$')
     m = parse_regex.match(interval_string)
@@ -78,13 +78,21 @@ def parse_interval(interval_string):
         lower_bound = int(m.group(2))
         upper_bound = int(m.group(3))
         upper_inclusive = m.group(4)=="]"
-        return (lower_bound, upper_bound, lower_inclusive, upper_inclusive)
+        return (lower_inclusive, lower_bound, upper_bound, upper_inclusive)
 
     else:
         raise IntervalParseException("Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.")
 
 
 
+def interval_to_string(interval_tuple):
+    '''Function to convert an interval tuple to a string'''
+    return "%s%d, %d%s" % (
+        "[" if interval_tuple[0] else "(",
+        interval_tuple[1],
+        interval_tuple[2],
+        "]" if interval_tuple[3] else ")"
+    )
 
 
 class interval(object):
@@ -104,18 +112,16 @@ class interval(object):
         and create booleans for whether each is inclusive or not. Then,
         ensure those parameters describe a valid interval.
         '''
-        (self.lower_bound, self.upper_bound,
-            self.lower_is_inclusive, self.upper_is_inclusive) = parse_interval(interval_string)
+        (self.lower_is_inclusive, self.lower_bound,
+            self.upper_bound, self.upper_is_inclusive) = parse_interval(interval_string)
         self.validate_interval()
 
     def __str__(self):
         '''String representation of intervals should use bracket/paren notation'''
-        return "%s%d, %d%s" % (
-            "[" if self.lower_is_inclusive else "(",
-            self.lower_bound,
-            self.upper_bound,
-            "]" if self.upper_is_inclusive else ")"
-        )
+        return interval_to_string((self.lower_is_inclusive,
+                                    self.lower_bound,
+                                    self.upper_bound,
+                                    self.upper_is_inclusive))
 
     def __eq__(self, other):
         '''Test if one interval is equal to another; true if both are same class
@@ -156,22 +162,7 @@ class interval(object):
         if int(number) != number:
             raise ValueError("Intervals can only contain integer values")
 
-        # Rather than testing if number is in interval, we actually go through
-        # each case where number would NOT be in the interval, returning False
-        # if any test succeeds. If we get to the end without having returned,
-        # it therefore means the number is within the interval (return True)
-        if self.lower_is_inclusive and number < self.lower_bound:
-            return False
-        elif not self.lower_is_inclusive and number <= self.lower_bound:
-            return False
-
-        if self.upper_is_inclusive and number > self.upper_bound:
-            return False
-        elif not self.upper_is_inclusive and number >= self.upper_bound:
-            return False
-
-        # number doesn't fail any test, so it must be in the interval
-        return True
+        return number >= self.min_integer() and number <= self.max_integer()
 
     def max_integer(self):
         '''Returns the maximum integer contained in interval'''
@@ -188,5 +179,38 @@ def mergeIntervals(int1, int2):
     '''Function to merge two intervals. If they overlap or are adjacent, then
     return the merged interval. If they cannot be merged, throw an
     IntervalMergeException.'''
+
+    # Test each interval to see if it contains the minimum integer in the other
+    # If it does, that means we want its lower bound/inclusiveness to be the
+    # lower bound for the merged interval. Then we do the same for the upper
+    lower_bound = None
+    lower_is_inclusive = None
+    upper_bound = None
+    upper_is_inclusive = None
+
+    if int1.contains(int2.min_integer()) or int1.contains(int2.min_integer() - 1):
+        lower_bound = int1.lower_bound
+        lower_is_inclusive = int1.lower_is_inclusive
+    elif int2.contains(int1.min_integer()) or int2.contains(int1.min_integer() - 1):
+        lower_bound = int2.lower_bound
+        lower_is_inclusive = int2.lower_is_inclusive
+
+
+    if int1.contains(int2.max_integer()) or int1.contains(int2.max_integer() + 1):
+        upper_bound = int1.upper_bound
+        upper_is_inclusive = int1.upper_is_inclusive
+    elif int2.contains(int1.max_integer()) or int2.contains(int1.max_integer() + 1):
+        upper_bound = int2.upper_bound
+        upper_is_inclusive = int2.upper_is_inclusive
+
     # First, get minimum/maximum values in each interval
-    pass
+    if lower_bound is None or upper_bound is None or \
+        lower_is_inclusive is None or upper_is_inclusive is None:
+        raise IntervalMergeException("Cannot merge intervals %s and %s; they are neither overlapping nor adjacent." % (int1, int2))
+
+    return interval(interval_to_string((
+            lower_is_inclusive,
+            lower_bound,
+            upper_bound,
+            upper_is_inclusive
+        )))
