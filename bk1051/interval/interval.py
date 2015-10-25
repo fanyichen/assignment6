@@ -156,22 +156,7 @@ class interval(object):
         if int(number) != number:
             raise ValueError("Intervals can only contain integer values")
 
-        # Rather than testing if number is in interval, we actually go through
-        # each case where number would NOT be in the interval, returning False
-        # if any test succeeds. If we get to the end without having returned,
-        # it therefore means the number is within the interval (return True)
-        if self.lower_is_inclusive and number < self.lower_bound:
-            return False
-        elif not self.lower_is_inclusive and number <= self.lower_bound:
-            return False
-
-        if self.upper_is_inclusive and number > self.upper_bound:
-            return False
-        elif not self.upper_is_inclusive and number >= self.upper_bound:
-            return False
-
-        # number doesn't fail any test, so it must be in the interval
-        return True
+        return number >= self.min_integer() and number <= self.max_integer()
 
     def max_integer(self):
         '''Returns the maximum integer contained in interval'''
