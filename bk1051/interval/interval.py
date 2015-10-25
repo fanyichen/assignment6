@@ -189,19 +189,19 @@ def mergeIntervals(int1, int2):
     upper_is_inclusive = None
 
     if int1.contains(int2.min_integer()) or int1.contains(int2.min_integer() - 1):
-        lower_bound = int1.lower_bound
-        lower_is_inclusive = int1.lower_is_inclusive
+        lower_bound = int1.lower_bound if int1.lower_bound < int2.lower_bound else int2.lower_bound
+        lower_is_inclusive = int1.lower_is_inclusive if int1.lower_bound < int2.lower_bound else int2.lower_is_inclusive
     elif int2.contains(int1.min_integer()) or int2.contains(int1.min_integer() - 1):
-        lower_bound = int2.lower_bound
-        lower_is_inclusive = int2.lower_is_inclusive
+        lower_bound = int2.lower_bound if int2.lower_bound < int1.lower_bound else int1.lower_bound
+        lower_is_inclusive = int2.lower_is_inclusive if int2.lower_bound < int1.lower_bound else int1.lower_is_inclusive
 
 
     if int1.contains(int2.max_integer()) or int1.contains(int2.max_integer() + 1):
-        upper_bound = int1.upper_bound
-        upper_is_inclusive = int1.upper_is_inclusive
+        upper_bound = int1.upper_bound if int1.upper_bound > int2.upper_bound else int2.upper_bound
+        upper_is_inclusive = int1.upper_is_inclusive if int1.upper_bound > int2.upper_bound else int2.upper_is_inclusive
     elif int2.contains(int1.max_integer()) or int2.contains(int1.max_integer() + 1):
-        upper_bound = int2.upper_bound
-        upper_is_inclusive = int2.upper_is_inclusive
+        upper_bound = int2.upper_bound if int2.upper_bound > int1.upper_bound else int1.upper_bound
+        upper_is_inclusive = int2.upper_is_inclusive if int2.upper_bound > int1.upper_bound else int1.upper_is_inclusive
 
     # First, get minimum/maximum values in each interval
     if lower_bound is None or upper_bound is None or \
@@ -214,3 +214,33 @@ def mergeIntervals(int1, int2):
             upper_bound,
             upper_is_inclusive
         )))
+
+
+
+def mergeOverlapping(intervals):
+    '''Merge all overlapping intervals in the list intervals.'''
+    # If not at least 2 intervals, just return the input
+    if len(intervals) <= 1:
+        return intervals
+    #
+    # merged = None
+    # try:
+    #     merged = mergeIntervals(intervals[0], intervals[1])
+    # except IntervalMergeException:
+    #     pass
+    # else:
+    #     intervals = intervals[2:].append(merged)
+
+    result = []
+    for i, int1 in enumerate(intervals):
+        for j, int2 in enumerate(intervals):
+            merged = None
+            try:
+                merged = mergeIntervals(int1, int2)
+            except IntervalMergeException:
+                print "NO MERGE:", int1, int2, merged
+            else:
+                print int1, int2, "=>", merged
+                result.append(merged)
+    print "Results:", [str(i) for i in result]
+    return intervals
