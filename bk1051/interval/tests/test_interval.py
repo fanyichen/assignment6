@@ -123,14 +123,14 @@ class MergeIntervalsTestCase(unittest.TestCase):
             )
 
     def test_merge_unmergable_intervalse_raises_exception(self):
-        with self.assertRaises(IntervalMergeException):
+        with self.assertRaises(interval.IntervalMergeException):
             interval.mergeIntervals(interval.interval("[-3, 0)"),
                                     interval.interval("(0, 3]"))
 
-        with self.assertRaises(IntervalMergeException):
+        with self.assertRaises(interval.IntervalMergeException):
             interval.mergeIntervals(interval.interval("[-3, 1)"),
                                     interval.interval("[2, 3]"))
 
-        with self.assertRaises(IntervalMergeException):
+        with self.assertRaises(interval.IntervalMergeException):
             interval.mergeIntervals(interval.interval("[-3, 0)"),
                                     interval.interval("[3, 4]"))

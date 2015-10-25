@@ -183,20 +183,34 @@ def mergeIntervals(int1, int2):
     # Test each interval to see if it contains the minimum integer in the other
     # If it does, that means we want its lower bound/inclusiveness to be the
     # lower bound for the merged interval. Then we do the same for the upper
-    if int1.contains(int2.min_integer()):
+    lower_bound = None
+    lower_is_inclusive = None
+    upper_bound = None
+    upper_is_inclusive = None
+
+    if int1.contains(int2.min_integer()) or int1.contains(int2.min_integer() - 1):
         lower_bound = int1.lower_bound
         lower_is_inclusive = int1.lower_is_inclusive
-    elif int2.contains(int1.min_integer()):
+    elif int2.contains(int1.min_integer()) or int2.contains(int1.min_integer() - 1):
         lower_bound = int2.lower_bound
         lower_is_inclusive = int2.lower_is_inclusive
 
-    if int1.contains(int2.max_integer()):
+
+    if int1.contains(int2.max_integer()) or int1.contains(int2.max_integer() + 1):
         upper_bound = int1.upper_bound
         upper_is_inclusive = int1.upper_is_inclusive
-    elif int2.contains(int1.max_integer()):
+    elif int2.contains(int1.max_integer()) or int2.contains(int1.max_integer() + 1):
         upper_bound = int2.upper_bound
         upper_is_inclusive = int2.upper_is_inclusive
 
-
     # First, get minimum/maximum values in each interval
-    return interval()
+    if lower_bound is None or upper_bound is None or \
+        lower_is_inclusive is None or upper_is_inclusive is None:
+        raise IntervalMergeException("Cannot merge intervals %s and %s; they are neither overlapping nor adjacent." % (int1, int2))
+
+    return interval(interval_to_string((
+            lower_is_inclusive,
+            lower_bound,
+            upper_bound,
+            upper_is_inclusive
+        )))
