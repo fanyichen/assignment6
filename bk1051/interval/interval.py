@@ -182,26 +182,36 @@ def mergeIntervals(int1, int2):
 
     # Test each interval to see if it contains the minimum integer in the other
     # If it does, that means we want its lower bound/inclusiveness to be the
-    # lower bound for the merged interval. Then we do the same for the upper
+    # lower bound for the merged interval, unless the other interval has
+    # a lower but open bound - i.e. we want (2, 5) and [3, 4]. to merge to
+    # (2, 5), even though both intervals have the same numbers.
+    # Then we do the same for the upper
     lower_bound = None
     lower_is_inclusive = None
     upper_bound = None
     upper_is_inclusive = None
 
     if int1.contains(int2.min_integer()) or int1.contains(int2.min_integer() - 1):
-        lower_bound = int1.lower_bound if int1.lower_bound < int2.lower_bound else int2.lower_bound
-        lower_is_inclusive = int1.lower_is_inclusive if int1.lower_bound < int2.lower_bound else int2.lower_is_inclusive
+        if int1.lower_bound < int2.lower_bound:
+            lower_bound, lower_is_inclusive = int1.lower_bound, int1.lower_is_inclusive
+        else:
+            lower_bound, lower_is_inclusive = int2.lower_bound, int2.lower_is_inclusive
     elif int2.contains(int1.min_integer()) or int2.contains(int1.min_integer() - 1):
-        lower_bound = int2.lower_bound if int2.lower_bound < int1.lower_bound else int1.lower_bound
-        lower_is_inclusive = int2.lower_is_inclusive if int2.lower_bound < int1.lower_bound else int1.lower_is_inclusive
-
+        if int2.lower_bound < int1.lower_bound:
+            lower_bound, lower_is_inclusive = int2.lower_bound, int2.lower_is_inclusive
+        else:
+            lower_bound, lower_is_inclusive = int1.lower_bound, int1.lower_is_inclusive
 
     if int1.contains(int2.max_integer()) or int1.contains(int2.max_integer() + 1):
-        upper_bound = int1.upper_bound if int1.upper_bound > int2.upper_bound else int2.upper_bound
-        upper_is_inclusive = int1.upper_is_inclusive if int1.upper_bound > int2.upper_bound else int2.upper_is_inclusive
+        if int1.upper_bound > int2.upper_bound:
+            upper_bound, upper_is_inclusive = int1.upper_bound, int1.upper_is_inclusive
+        else:
+            upper_bound, upper_is_inclusive = int2.upper_bound, int2.upper_is_inclusive
     elif int2.contains(int1.max_integer()) or int2.contains(int1.max_integer() + 1):
-        upper_bound = int2.upper_bound if int2.upper_bound > int1.upper_bound else int1.upper_bound
-        upper_is_inclusive = int2.upper_is_inclusive if int2.upper_bound > int1.upper_bound else int1.upper_is_inclusive
+        if int2.upper_bound > int1.upper_bound:
+            upper_bound, upper_is_inclusive = int2.upper_bound, int2.upper_is_inclusive
+        else:
+            upper_bound, upper_is_inclusive = int1.upper_bound, int1.upper_is_inclusive
 
     # First, get minimum/maximum values in each interval
     if lower_bound is None or upper_bound is None or \
