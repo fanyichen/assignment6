@@ -107,6 +107,16 @@ class MergeIntervalsTestCase(unittest.TestCase):
                                     interval("[1, 5]")).__str__(),
             interval("(0, 5]").__str__()
             )
+        self.assertEqual(
+            mergeIntervals(interval("[1, 5]"),
+                                    interval("(0, 5)")).__str__(),
+            interval("(0, 5]").__str__()
+            )
+        self.assertEqual(
+            mergeIntervals(interval("[1, 6)"),
+                                    interval("[0, 5]")).__str__(),
+            interval("[0, 6)").__str__()
+            )
         # Negative
         self.assertEqual(
             mergeIntervals(interval("(-3, 3)"),
