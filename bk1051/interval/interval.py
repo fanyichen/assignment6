@@ -5,7 +5,7 @@ Created on Oct 24, 2015
 '''
 import re
 
-
+# Define some custom exceptions
 class IntervalParseException(Exception):
     '''Exception to be raised when an interval string cannot be parsed.'''
     pass
@@ -13,6 +13,13 @@ class IntervalParseException(Exception):
 class InvalidIntervalException(Exception):
     '''Exception to be raised when an interval is invalid.'''
     pass
+
+class IntervalMergeException(Exception):
+    '''Exception to be raised when problem merging intervals'''
+    pass
+
+
+
 
 def parse_interval(interval_string):
     """Function to parse an interval string.
@@ -75,6 +82,7 @@ def parse_interval(interval_string):
 
     else:
         raise IntervalParseException("Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.")
+
 
 
 
@@ -164,3 +172,21 @@ class interval(object):
 
         # number doesn't fail any test, so it must be in the interval
         return True
+
+    def max_integer(self):
+        '''Returns the maximum integer contained in interval'''
+        return self.upper_bound if self.upper_is_inclusive else self.upper_bound - 1
+
+    def min_integer(self):
+        '''Returns the minimum integer contained in interval'''
+        return self.lower_bound if self.lower_is_inclusive else self.lower_bound + 1
+
+
+
+
+def mergeIntervals(int1, int2):
+    '''Function to merge two intervals. If they overlap or are adjacent, then
+    return the merged interval. If they cannot be merged, throw an
+    IntervalMergeException.'''
+    # First, get minimum/maximum values in each interval
+    pass
