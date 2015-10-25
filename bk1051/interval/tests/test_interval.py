@@ -20,9 +20,13 @@ class IntervalTestCase(unittest.TestCase):
     def test_parse_malformed_intervals_raise_exceptions(self):
         with self.assertRaises(interval.IntervalParseException):
             interval.parse_interval("-1 1")
+        with self.assertRaises(interval.IntervalParseException):
             interval.parse_interval("[-1 1,1]")
+        with self.assertRaises(interval.IntervalParseException):
             interval.parse_interval("[-11,]")
+        with self.assertRaises(interval.IntervalParseException):
             interval.parse_interval("{1,1]")
+        with self.assertRaises(interval.IntervalParseException):
             interval.parse_interval("(-1.0,1]")
 
     def test_valid_interval_creation_and_representation(self):
@@ -40,8 +44,11 @@ class IntervalTestCase(unittest.TestCase):
     def test_invalid_intervals_do_not_validate(self):
         with self.assertRaises(interval.InvalidIntervalException):
             intvl1 = interval.interval("(1, 1)")
+        with self.assertRaises(interval.InvalidIntervalException):
             intvl2 = interval.interval("(-1, -3)")
+        with self.assertRaises(interval.InvalidIntervalException):
             intvl3 = interval.interval("[3, 1]")
+        with self.assertRaises(interval.InvalidIntervalException):
             intvl4 = interval.interval("(1, 1]")
 
     def test_interval_contains(self):
@@ -62,10 +69,12 @@ class IntervalTestCase(unittest.TestCase):
         self.assertFalse(intvl3.contains(-3))
         self.assertFalse(intvl3.contains(2))
 
-        # Even though intervals are bounded only by integers, no reason we
-        # should necessarily throw an exception if user asks if interval contains
-        # a non-integer
-        self.assertTrue(intvl3.contains(-2.5))
-        self.assertTrue(intvl3.contains(0.999))
-        self.assertFalse(intvl3.contains(-3.0))
-        self.assertFalse(intvl3.contains(1.01))
+        # In a future version, we may allow non-integer tests, but not now
+        self.assertFalse(intvl3.contains(-3.0)) # Allow anything that can be cast to integer
+        with self.assertRaises(ValueError):
+            self.assertTrue(intvl3.contains(-2.5))
+        with self.assertRaises(ValueError):
+            self.assertTrue(intvl3.contains(0.999))
+        with self.assertRaises(ValueError):
+            self.assertFalse(intvl3.contains(1.01))
+    

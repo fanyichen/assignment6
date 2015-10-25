@@ -5,14 +5,17 @@ Created on Oct 24, 2015
 '''
 import re
 
+
 class IntervalParseException(Exception):
+    '''Exception to be raised when an interval string cannot be parsed.'''
     pass
 
 class InvalidIntervalException(Exception):
+    '''Exception to be raised when an interval is invalid.'''
     pass
 
 def parse_interval(interval_string):
-    """Method to parse a interval string.
+    """Function to parse an interval string.
 
     The string should contain two integers, separated by a comma.
     The first number is the lower bound, the second number the
@@ -74,20 +77,16 @@ def parse_interval(interval_string):
         raise IntervalParseException("Could not parse interval. Must be 2 integers, separated by comma, enclosed in some combination of parenthses/brackets.")
 
 
-class bound(object):
-    def __init__(self, value, is_inclusive):
-        self.value = value
-        self.is_inclusive = is_inclusive
 
-class lowerBound(bound):
-    pass
-
-class upperBound(bound):
-    pass
 
 class interval(object):
     '''
-    classdocs
+    This interval class is used to represent a range of integers. Each interval
+    has a lower and upper bound, and each bound is either inclusive (i.e. closed)
+    or exclusive (open). If both bounds are inclusive, lower bound must be <=
+    upper bound. If one bound is inclusive and one is exclusive, lower bound
+    must be < upper bound. If both bounds are exclusive, lower bound must be
+    < upper bound - 1.
     '''
 
 
@@ -129,6 +128,10 @@ class interval(object):
 
     def contains(self, number):
         '''Returns True if number is contained in interval, False otherwise'''
+        # First test if number is an integer
+        if int(number) != number:
+            raise ValueError("Intervals can only contain integer values")
+
         # Rather than testing if number is in interval, we actually go through
         # each case where number would NOT be in the interval, returning False
         # if any test succeeds. If we get to the end without having returned,
