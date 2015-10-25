@@ -92,19 +92,35 @@ class interval(object):
 
     def __init__(self, interval_string):
         '''
-        Constructor
+        Constructor. Parse the interval string into upper and lower bounds,
+        and create booleans for whether each is inclusive or not. Then,
+        ensure those parameters describe a valid interval.
         '''
         (self.lower_bound, self.upper_bound,
             self.lower_is_inclusive, self.upper_is_inclusive) = parse_interval(interval_string)
         self.validate_interval()
 
     def __str__(self):
+        '''String representation of intervals should use bracket/paren notation'''
         return "%s%d, %d%s" % (
             "[" if self.lower_is_inclusive else "(",
             self.lower_bound,
             self.upper_bound,
             "]" if self.upper_is_inclusive else ")"
         )
+
+    def __eq__(self, other):
+        '''Test if one interval is equal to another; true if both are same class
+        and both have same string representation.'''
+        if isinstance(other, self.__class__):
+            return self.__str__() == other.__str__()
+        else:
+            return False
+
+    def __ne__(self, other):
+        '''Intervals are not equal to each other if __eq__() returns False'''
+        return self.__eq__(other) == False
+
 
     def validate_interval(self):
         '''Tests whether the parsed interval is valid.
