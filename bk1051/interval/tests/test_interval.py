@@ -4,9 +4,9 @@ import interval
 class IntervalParserTestCase(unittest.TestCase):
     '''Test the parse_interval function'''
     def test_parse_well_formed_intervals(self):
-        self.assertEqual(interval.parse_interval("[0, 1]"), (0,1,True,True))
-        self.assertEqual(interval.parse_interval("[ 10, 1)"), (10,1,True,False))
-        self.assertEqual(interval.parse_interval("[-70,+1]"), (-70,1,True,True))
+        self.assertEqual(interval.parse_interval("[0, 1]"), (True, 0,1,True))
+        self.assertEqual(interval.parse_interval("[ 10, 1)"), (True, 10,1,False))
+        self.assertEqual(interval.parse_interval("[-70,+1]"), (True, -70,1,True))
 
     def test_parse_malformed_intervals_raise_exceptions(self):
         with self.assertRaises(interval.IntervalParseException):
