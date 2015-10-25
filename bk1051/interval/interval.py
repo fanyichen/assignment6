@@ -94,6 +94,12 @@ def interval_to_string(interval_tuple):
         "]" if interval_tuple[3] else ")"
     )
 
+def intervals_to_strings(intervals):
+    '''Function to convert a list of intervals to a list of strings. Useful
+    for comparing two lists of intervals, since the interval objects will not
+    be equal'''
+    return [str(i) for i in intervals]
+
 
 class interval(object):
     '''
@@ -178,7 +184,9 @@ class interval(object):
 def mergeIntervals(int1, int2):
     '''Function to merge two intervals. If they overlap or are adjacent, then
     return the merged interval. If they cannot be merged, throw an
-    IntervalMergeException.'''
+    IntervalMergeException.
+    '''
+
 
     # Test each interval to see if it contains the minimum integer in the other
     # If it does, that means we want its lower bound/inclusiveness to be the
@@ -222,31 +230,43 @@ def mergeIntervals(int1, int2):
         )))
 
 
-
-def mergeOverlapping(intervals):
-    '''Merge all overlapping intervals in the list intervals.'''
-    # If not at least 2 intervals, just return the input
-    if len(intervals) <= 1:
-        return intervals
-    #
-    # merged = None
-    # try:
-    #     merged = mergeIntervals(intervals[0], intervals[1])
-    # except IntervalMergeException:
-    #     pass
-    # else:
-    #     intervals = intervals[2:].append(merged)
-
-    result = []
-    for i, int1 in enumerate(intervals):
-        for j, int2 in enumerate(intervals):
+def _mergeOverlapping(intervals):
+    '''Perform one pass through to merge overlapping intervals'''
+    # The algorithm we use is:
+    # Go through the list of intervals.
+    # For each interval int1, go through the list again:
+    # For each interval int2, try to merge int1 and int2
+    # If they merge, replace int1 with the merged interval, then pick the next
+    # int2, and so on.
+    # In the end, if the maximally merged interval does not exist in the results
+    # list, we add it to the end.
+    results = []
+    for int1 in intervals:
+        for int2 in intervals:
             merged = None
             try:
                 merged = mergeIntervals(int1, int2)
             except IntervalMergeException:
+                pass
                 print "NO MERGE:", int1, int2, merged
             else:
                 print int1, int2, "=>", merged
-                result.append(merged)
-    print "Results:", [str(i) for i in result]
-    return intervals
+                int1 = merged
+        if int1 not in results:
+            results.append(int1)
+
+    print "RESULTS:", intervals_to_strings(results)
+    return results
+
+
+def mergeOverlapping(intervals):
+    '''Merge all overlapping intervals in the list intervals.'''
+
+    # If not at least 2 intervals, just return the input
+    if len(intervals) <= 1:
+        return intervals
+
+    results = intervals
+    while _mergeOverlapping(results) != results:
+        results = _mergeOverlapping(results)
+    return results

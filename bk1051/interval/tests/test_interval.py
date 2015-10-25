@@ -159,3 +159,11 @@ class MergeIntervalsTestCase(unittest.TestCase):
             [str(i) for i in mergeOverlapping([interval("[1,5]"), interval("[2, 6)"), interval("(8, 10]"), interval("[8, 18]")])],
             [str(interval("[1, 6)")), str(interval("[8, 18]"))]
         )
+        self.assertEqual(
+            [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("(6, 8]"), interval("(9, 18]")])],
+            ["[-1, 6)", "(6, 8]", "(9, 18]"]
+        )
+        self.assertEqual(
+            [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("[6, 8]"), interval("[9, 18]")])],
+            ["[-1, 18]"]
+        )
