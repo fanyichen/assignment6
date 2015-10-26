@@ -18,6 +18,15 @@ class IntervalMergeException(Exception):
     '''Exception to be raised when problem merging intervals'''
     pass
 
+class OverlappingIntervalsException(Exception):
+    '''Exception to be raised when a list of intervals that is supposed
+    to be non-overlapping is, in fact, overlapping.'''
+    pass
+
+class UnsortedIntervalsException(Exception):
+    '''Exception to be raised when an interval list is supposed to be sorted
+    but isn't'''
+    pass
 
 
 
@@ -87,7 +96,7 @@ def parse_interval(interval_string):
 
 def interval_to_string(interval_tuple):
     '''Function to convert an interval tuple to a string'''
-    return "%s%d, %d%s" % (
+    return "%s%d,%d%s" % (
         "[" if interval_tuple[0] else "(",
         interval_tuple[1],
         interval_tuple[2],
@@ -178,6 +187,28 @@ class interval(object):
         '''Returns the minimum integer contained in interval'''
         return self.lower_bound if self.lower_is_inclusive else self.lower_bound + 1
 
+    def __gt__(self, other):
+        '''Override the greater than function. Test lower bound first, then upper bound.'''
+        if self.min_integer() != other.min_integer():
+            return self.min_integer() > other.min_integer()
+        elif self.lower_bound != other.lower_bound:
+            return self.lower_bound > other.lower_bound
+        elif self.max_integer() != other.max_integer():
+            return self.max_integer() > other.max_integer()
+        else:
+            return self.upper_bound > other.upper_bound
+
+    def __lt__(self, other):
+        '''Override the less than function. Test lower bound first, then upper bound.'''
+        if self.min_integer() != other.min_integer():
+            return self.min_integer() < other.min_integer()
+        elif self.lower_bound != other.lower_bound:
+            return self.lower_bound < other.lower_bound
+        elif self.max_integer() != other.max_integer():
+            return self.max_integer() < other.max_integer()
+        else:
+            return self.upper_bound < other.upper_bound
+
 
 
 
@@ -248,14 +279,14 @@ def _mergeOverlapping(intervals):
                 merged = mergeIntervals(int1, int2)
             except IntervalMergeException:
                 pass
-                print "NO MERGE:", int1, int2, merged
+                #print "NO MERGE:", int1, int2, merged
             else:
-                print int1, int2, "=>", merged
+                #print int1, int2, "=>", merged
                 int1 = merged
         if int1 not in results:
             results.append(int1)
 
-    print "RESULTS:", intervals_to_strings(results)
+    #print "RESULTS:", intervals_to_strings(results)
     return results
 
 
@@ -270,3 +301,20 @@ def mergeOverlapping(intervals):
     while _mergeOverlapping(results) != results:
         results = _mergeOverlapping(results)
     return results
+
+def sortIntervals(intervals):
+    '''Function to sort a list of intervals. Sort first by lower bound,
+    with inclusive lower bounds before exclusive lower bounds. Then,
+    sort by upper bound, with inclusive bounds before exclusive upper bounds'''
+    return sorted(intervals)
+
+def insert(intervals, newint):
+    '''Insert interval newint into a list of intervals'''
+
+    # Make sure intervals are not overlapping
+    if mergeOverlapping(intervals) != intervals:
+        raise OverlappingIntervalsException("Interval list must be non-overlapping.")
+
+    interval_list = list(intervals)
+    interval_list.append(newint)
+    return sortIntervals(mergeOverlapping(interval_list))

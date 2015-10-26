@@ -28,13 +28,13 @@ class IntervalClassTestCase(unittest.TestCase):
         intvl1 = interval("[0, 1]")
         self.assertEqual(str(intvl1), "[0, 1]")
         intvl2 = interval("( -10 , +1)")
-        self.assertEqual(intvl2.__str__(), "(-10, 1)")
+        self.assertEqual(intvl2.__str__(), "(-10,1)")
         intvl3 = interval("  [ -3, 3 )")
-        self.assertEqual(intvl3.__str__(), "[-3, 3)")
+        self.assertEqual(intvl3.__str__(), "[-3,3)")
         intvl4 = interval("[1, 1]")
-        self.assertEqual(intvl4.__str__(), "[1, 1]")
+        self.assertEqual(intvl4.__str__(), "[1,1]")
         intvl5 = interval("[1, 2)")
-        self.assertEqual(intvl5.__str__(), "[1, 2)")
+        self.assertEqual(intvl5.__str__(), "[1,2)")
 
     def test_invalid_intervals_do_not_validate(self):
         with self.assertRaises(InvalidIntervalException):
@@ -72,6 +72,16 @@ class IntervalClassTestCase(unittest.TestCase):
             self.assertTrue(intvl3.contains(0.999))
         with self.assertRaises(ValueError):
             self.assertFalse(intvl3.contains(1.01))
+
+    def test_interval_ordering(self):
+        self.assertTrue(interval("[1, 2]") < interval("[2, 3]"))
+        self.assertFalse(interval("[1, 2]") > interval("[2, 3]"))
+        self.assertFalse(interval("[1, 2]") > interval("[1, 2]"))
+        self.assertTrue(interval("[1, 2]") < interval("[1, 3]"))
+        self.assertTrue(interval("(1, 2]") > interval("[1, 2]"))
+        self.assertTrue(interval("(1, 3)") < interval("[2, 3)"))
+        self.assertTrue(interval("(1, 3)") < interval("(1, 3]"))
+        self.assertTrue(interval("[1, 2]") < interval("[1, 3)"))
 
 
 
@@ -161,9 +171,50 @@ class MergeIntervalsTestCase(unittest.TestCase):
         )
         self.assertEqual(
             [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("(6, 8]"), interval("(9, 18]")])],
-            ["[-1, 6)", "(6, 8]", "(9, 18]"]
+            ["[-1,6)", "(6,8]", "(9,18]"]
         )
         self.assertEqual(
             [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("[6, 8]"), interval("[9, 18]")])],
-            ["[-1, 18]"]
+            ["[-1,18]"]
         )
+
+class SortIntervalTestCase(unittest.TestCase):
+    def test_sort_intervals(self):
+        self.assertEqual(intervals_to_strings(
+            sortIntervals(
+                [interval("[10,11]"), interval("[-3, 10]"), interval("(5, 7)")]
+            )),
+            ["[-3,10]", "(5,7)", "[10,11]"]
+        )
+        self.assertEqual(intervals_to_strings(
+            sortIntervals(
+                [interval("(1,10)"), interval("(1, 10]"), interval("[1, 3)")]
+            )),
+            ["[1,3)", "(1,10)", "(1,10]"]
+        )
+
+class InsertIntervalTestCase(unittest.TestCase):
+    def test_insert_interval(self):
+        self.assertEqual(
+            insert([interval("[1,3]"), interval("[6,9]")], interval('[2,5]')),
+            [interval('[1, 9]')]
+        )
+        self.assertEqual(
+            intervals_to_strings(
+                insert([interval("[1,2]"), interval("(3,5)"), interval("[6,7)"), interval("(8,10]"), interval("[12,16]")],
+                    interval('[4,9]'))
+                ),
+            ["[1,2]", "(3,10]", "[12,16]"]
+        )
+        self.assertEqual(
+            intervals_to_strings(
+                insert([interval("[1,2]"), interval("(3,5)"), interval("[6,7)"), interval("(8,10]"), interval("[12,16]")],
+                    interval('[-5,0)'))
+                ),
+            ["[-5,0)", "[1,2]", "(3,5)", "[6,7)", "(8,10]", "[12,16]"]
+        )
+
+    def test_insert_interval_unsorted(self):
+        with self.assertRaises(OverlappingIntervalsException):
+            insert([interval("[1,2]"), interval("[3,5)"), interval("[6,7)"), interval("(8,10]"), interval("[12,16]")],
+                    interval('[4, 9]'))
