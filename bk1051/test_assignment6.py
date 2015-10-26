@@ -20,7 +20,9 @@ class Assignment6TestCase(unittest.TestCase):
         self.assertEqual(parse_interval_input("1111"), "Invalid interval")
         self.assertEqual(parse_interval_input("11,11"), "Invalid interval")
         self.assertEqual(parse_interval_input("[11,11)"), "Invalid interval")
-        self.assertEqual(parse_interval_input("[11,1)"), "Invalid interval")
+        self.assertEqual(parse_interval_input("[4,-1]"), "Invalid interval")
+        self.assertEqual(parse_interval_input("(3,4)"), "Invalid interval")
+        self.assertEqual(parse_interval_input("foo"), "Invalid interval")
         self.assertEqual(parse_interval_input("[11,12,21)"), "Invalid interval")
 
     def test_invalid_interval_list_input(self):
@@ -40,6 +42,31 @@ class Assignment6TestCase(unittest.TestCase):
     def test_insert_interval_from_input(self):
         interval_list = parse_interval_list_input("[-10,-7], (-4,1], [3,6), (8,12), [15,23]")
         newint = parse_interval_input("[4,8]")
-        new_interval_list = insert(interval_list, newint)
-        self.assertEqual(interval_list_to_string(new_interval_list),
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
             "[-10,7], (-4,1], [3,12), [15,23]")
+
+        newint = parse_interval_input("[24,24]")
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
+            "[-10,7], (-4,1], [3,12), [15,24]")
+
+        newint = parse_interval_input("[12,13)")
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
+            "[-10,7], (-4,1], [3,13), [15,24]")
+
+        newint = parse_interval_input("(2,12)")
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
+            "[-10,7], (-4,1], [3,13), [15,24]")
+
+        newint = parse_interval_input("(-7,-2]")
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
+            "[-10,1], [3,13), [15,24]")
+
+        newint = parse_interval_input("[-2,5]")
+        interval_list = insert(interval_list, newint)
+        self.assertEqual(interval_list_to_string(interval_list),
+            "[-10,13), [15,24]")
