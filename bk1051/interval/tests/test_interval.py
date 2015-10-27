@@ -103,7 +103,7 @@ class MergeIntervalsTestCase(unittest.TestCase):
         self.assertEqual(
             mergeIntervals(interval("[0, 5]"),
                                     interval("[3, 6)")).__str__(),
-            interval("[0, 6)").__str__()
+            interval("[0, 5]").__str__()
             )
         # One contains the other
         self.assertEqual(
@@ -125,7 +125,7 @@ class MergeIntervalsTestCase(unittest.TestCase):
         self.assertEqual(
             mergeIntervals(interval("[1, 6)"),
                                     interval("[0, 5]")).__str__(),
-            interval("[0, 6)").__str__()
+            interval("[0, 5]").__str__()
             )
         # Negative
         self.assertEqual(
@@ -171,7 +171,7 @@ class MergeIntervalsTestCase(unittest.TestCase):
         )
         self.assertEqual(
             [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("(6, 8]"), interval("(9, 18]")])],
-            ["[-1,6)", "(6,8]", "(9,18]"]
+            ["[-1,5]", "(6,8]", "(9,18]"]
         )
         self.assertEqual(
             [str(i) for i in mergeOverlapping([interval("[-1,5]"), interval("[2, 6)"), interval("[6, 8]"), interval("[9, 18]")])],
@@ -204,7 +204,7 @@ class InsertIntervalTestCase(unittest.TestCase):
                 insert([interval("[1,2]"), interval("(3,5)"), interval("[6,7)"), interval("(8,10]"), interval("[12,16]")],
                     interval('[4,9]'))
                 ),
-            ["[1,2]", "(3,10]", "[12,16]"]
+            ["[1,2]", "[4,10]", "[12,16]"]
         )
         self.assertEqual(
             intervals_to_strings(
@@ -213,6 +213,21 @@ class InsertIntervalTestCase(unittest.TestCase):
                 ),
             ["[-5,0)", "[1,2]", "(3,5)", "[6,7)", "(8,10]", "[12,16]"]
         )
+        self.assertEqual(
+            intervals_to_strings(
+                insert([interval("[-10,-7]"), interval("(-4,1]"), interval("[3,6)"), interval("(8,12)"), interval("[15,23]")],
+                    interval('[4,8]'))
+                ),
+            ["[-10,-7]", "(-4,1]", "[3,12)", "[15,23]"]
+        )
+        self.assertEqual(
+            intervals_to_strings(
+                insert([interval("[-10,-7]"), interval("(-4,1]"), interval("[3,6)"), interval("(8,12)"), interval("[15,23]")],
+                    interval('(2, 12)'))
+                ),
+            ["[-10,-7]", "(-4,1]", "[3,12)", "[15,23]"]
+        )
+
 
     def test_insert_interval_unsorted(self):
         with self.assertRaises(OverlappingIntervalsException):
