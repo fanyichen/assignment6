@@ -145,32 +145,17 @@ class interval(object):
                                     self.upper_bound,
                                     self.upper_is_inclusive))
 
-    def __eq__(self, other):
-        '''Test if one interval is equal to another; true if both are same class
-        and both have same string representation.'''
-        if isinstance(other, self.__class__):
-            return self.__str__() == other.__str__()
-        else:
-            return False
-
-    def __ne__(self, other):
-        '''Intervals are not equal to each other if __eq__() returns False'''
-        return self.__eq__(other) == False
-
-    def __gt__(self, other):
-        '''Override the greater than function. Test lower bound first, then upper bound.'''
-        if self.min_integer() != other.min_integer():
-            return self.min_integer() > other.min_integer()
-        elif self.lower_bound != other.lower_bound:
-            return self.lower_bound > other.lower_bound
-        elif self.max_integer() != other.max_integer():
-            return self.max_integer() > other.max_integer()
-        else:
-            return self.upper_bound > other.upper_bound
-
+    # NOTE: rich comparison pattern based on http://stackoverflow.com/questions/1061283/lt-instead-of-cmp
     def __lt__(self, other):
-        '''Override the less than function. Test lower bound first, then upper bound.'''
-        if self.min_integer() != other.min_integer():
+        '''Test if one interval is less than another.
+        First test the minimum integer. If min integers are the same, test the
+        lower bound -- so that (1, 3) < [2, 3). Then, test the maximum integer.
+        If maximum integers are the same, test the upper bound.
+
+        This is the basis for all the other rich comparison methods.'''
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        elif self.min_integer() != other.min_integer():
             return self.min_integer() < other.min_integer()
         elif self.lower_bound != other.lower_bound:
             return self.lower_bound < other.lower_bound
@@ -179,13 +164,24 @@ class interval(object):
         else:
             return self.upper_bound < other.upper_bound
 
+    def __gt__(self, other):
+        return other < self
+
+    def __eq__(self, other):
+        '''Test if one interval is equal to another.'''
+        return not self < other and not other < self
+
+    def __ne__(self, other):
+        '''Intervals are not equal to each other if __eq__() returns False'''
+        return not self == other
+
     def __ge__(self, other):
         '''Override greater than or equal'''
-        return (self.__gt__(other) or self.__eq__(other))
+        return self > other or self == other
 
     def __le__(self, other):
         '''Override less than or equal'''
-        return (self.__lt__(other) or self.__eq__(other))
+        return self < other or self == other
 
 
     def validate_interval(self):
@@ -235,7 +231,6 @@ def mergeIntervals(int1, int2):
     IntervalMergeException.
     '''
 
-
     # Test each interval to see if it contains the minimum integer in the other
     # If it does, that means we want its lower bound/inclusiveness to be the
     # lower bound for the merged interval, unless the other interval has
@@ -276,6 +271,7 @@ def mergeIntervals(int1, int2):
             upper_bound,
             upper_is_inclusive
         )))
+
 
 
 def _mergeOverlapping(intervals):
@@ -319,11 +315,13 @@ def mergeOverlapping(intervals):
         results = _mergeOverlapping(results)
     return results
 
+
 def sortIntervals(intervals):
     '''Function to sort a list of intervals. Sort first by lower bound,
     with inclusive lower bounds before exclusive lower bounds. Then,
     sort by upper bound, with inclusive bounds before exclusive upper bounds'''
     return sorted(intervals)
+
 
 def insert(intervals, newint):
     '''Insert interval newint into a list of intervals'''
