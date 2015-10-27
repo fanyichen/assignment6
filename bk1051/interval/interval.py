@@ -29,7 +29,8 @@ class UnsortedIntervalsException(Exception):
     pass
 
 
-
+# Since we often want to parse an interval outside the context of a particular
+# interval object, we create a utility function, which the interval class calls
 def parse_interval(interval_string):
     """Function to parse an interval string.
 
@@ -42,7 +43,10 @@ def parse_interval(interval_string):
     parentheses indicate that the bound is exclusive.
 
     If the interval string cannot be parsed, the method raises an
-    IntervalParseException.
+    IntervalParseException. Otherwise, it returns a tuple ordered in the same
+    way as the string representation:
+    (lower bound is inclusive, lower bound,
+        upper bound, upper bound is inclusive)
 
     >>> parse_interval("(0,1)")
     (False, 0, 1, False)
@@ -95,7 +99,7 @@ def parse_interval(interval_string):
 
 
 def interval_to_string(interval_tuple):
-    '''Function to convert an interval tuple to a string'''
+    '''Utility function to convert an interval tuple to a string'''
     return "%s%d,%d%s" % (
         "[" if interval_tuple[0] else "(",
         interval_tuple[1],
@@ -103,29 +107,32 @@ def interval_to_string(interval_tuple):
         "]" if interval_tuple[3] else ")"
     )
 
+
 def intervals_to_strings(intervals):
-    '''Function to convert a list of intervals to a list of strings. Useful
-    for comparing two lists of intervals, since the interval objects will not
-    be equal'''
+    '''Utility function to convert a list of intervals to a list of strings.
+    Useful for comparing two lists of intervals, since the interval objects will
+    not be identical, so the lists won't be "equal", even if all their
+    components represent the same intervals'''
     return [str(i) for i in intervals]
 
 
 class interval(object):
     '''
-    This interval class is used to represent a range of integers. Each interval
-    has a lower and upper bound, and each bound is either inclusive (i.e. closed)
-    or exclusive (open). If both bounds are inclusive, lower bound must be <=
-    upper bound. If one bound is inclusive and one is exclusive, lower bound
-    must be < upper bound. If both bounds are exclusive, lower bound must be
-    < upper bound - 1.
+    This interval class is used to represent a range of integers.
+
+    Each interval has a lower and upper bound, and each bound is either
+    inclusive (i.e. closed) or exclusive (open).
+
+    If both bounds are inclusive, lower bound must be <= upper bound. If one
+    bound is inclusive and one is exclusive, lower bound must be < upper bound.
+    If both bounds are exclusive, lower bound must be < upper bound - 1.
     '''
 
-
     def __init__(self, interval_string):
-        '''
-        Constructor. Parse the interval string into upper and lower bounds,
-        and create booleans for whether each is inclusive or not. Then,
-        ensure those parameters describe a valid interval.
+        '''Constructor.
+        Parse the interval string into upper and lower bounds, and create
+        booleans for whether each is inclusive or not. Then, ensure those
+        parameters describe a valid interval.
         '''
         (self.lower_is_inclusive, self.lower_bound,
             self.upper_bound, self.upper_is_inclusive) = parse_interval(interval_string)
@@ -149,6 +156,36 @@ class interval(object):
     def __ne__(self, other):
         '''Intervals are not equal to each other if __eq__() returns False'''
         return self.__eq__(other) == False
+
+    def __gt__(self, other):
+        '''Override the greater than function. Test lower bound first, then upper bound.'''
+        if self.min_integer() != other.min_integer():
+            return self.min_integer() > other.min_integer()
+        elif self.lower_bound != other.lower_bound:
+            return self.lower_bound > other.lower_bound
+        elif self.max_integer() != other.max_integer():
+            return self.max_integer() > other.max_integer()
+        else:
+            return self.upper_bound > other.upper_bound
+
+    def __lt__(self, other):
+        '''Override the less than function. Test lower bound first, then upper bound.'''
+        if self.min_integer() != other.min_integer():
+            return self.min_integer() < other.min_integer()
+        elif self.lower_bound != other.lower_bound:
+            return self.lower_bound < other.lower_bound
+        elif self.max_integer() != other.max_integer():
+            return self.max_integer() < other.max_integer()
+        else:
+            return self.upper_bound < other.upper_bound
+
+    def __ge__(self, other):
+        '''Override greater than or equal'''
+        return (self.__gt__(other) or self.__eq__(other))
+
+    def __le__(self, other):
+        '''Override less than or equal'''
+        return (self.__lt__(other) or self.__eq__(other))
 
 
     def validate_interval(self):
@@ -187,27 +224,7 @@ class interval(object):
         '''Returns the minimum integer contained in interval'''
         return self.lower_bound if self.lower_is_inclusive else self.lower_bound + 1
 
-    def __gt__(self, other):
-        '''Override the greater than function. Test lower bound first, then upper bound.'''
-        if self.min_integer() != other.min_integer():
-            return self.min_integer() > other.min_integer()
-        elif self.lower_bound != other.lower_bound:
-            return self.lower_bound > other.lower_bound
-        elif self.max_integer() != other.max_integer():
-            return self.max_integer() > other.max_integer()
-        else:
-            return self.upper_bound > other.upper_bound
 
-    def __lt__(self, other):
-        '''Override the less than function. Test lower bound first, then upper bound.'''
-        if self.min_integer() != other.min_integer():
-            return self.min_integer() < other.min_integer()
-        elif self.lower_bound != other.lower_bound:
-            return self.lower_bound < other.lower_bound
-        elif self.max_integer() != other.max_integer():
-            return self.max_integer() < other.max_integer()
-        else:
-            return self.upper_bound < other.upper_bound
 
 
 
