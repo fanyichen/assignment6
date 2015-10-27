@@ -39,20 +39,23 @@ def ask_for_interval_list():
 def ask_for_interval():
     return raw_input("Interval? ")
 
-def parse_interval_input(input_string):
-    '''Parse user input for interval prompt.
-    Will exit program if user inputs the value of the QUIT variable.'''
+def exit_if_input_quit(input_string):
+    '''Will exit program if user inputs the value of the QUIT variable.'''
     if input_string.lower().find(QUIT) >= 0:
         sys.exit()
-    else:
-        return interval(input_string)
+
+def parse_interval_input(input_string):
+    '''Parse user input for interval prompt.'''
+    exit_if_input_quit(input_string)
+    return interval(input_string)
 
 def interval_list_to_string(intervals):
     return intervals_to_strings(intervals).join(", ")
 
 def parse_interval_list_input(input_string):
     '''Parse a list of intervals'''
-    pass
+    exit_if_input_quit(input_string)
+
 
 def run():
     intervals_string = ask_for_interval_list()

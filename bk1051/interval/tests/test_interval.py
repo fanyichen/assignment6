@@ -25,8 +25,8 @@ class IntervalParserTestCase(unittest.TestCase):
 class IntervalClassTestCase(unittest.TestCase):
     '''Test the interval class'''
     def test_valid_interval_creation_and_representation(self):
-        intvl1 = interval("[0, 1]")
-        self.assertEqual(str(intvl1), "[0, 1]")
+        intvl1 = interval("[0,1]")
+        self.assertEqual(str(intvl1), "[0,1]")
         intvl2 = interval("( -10 , +1)")
         self.assertEqual(intvl2.__str__(), "(-10,1)")
         intvl3 = interval("  [ -3, 3 )")
