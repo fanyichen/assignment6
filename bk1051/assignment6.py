@@ -1,4 +1,4 @@
-from interval import interval, intervals_to_strings, insert, IntervalParseException
+from interval import interval, intervals_to_strings, insert, IntervalParseException, InvalidIntervalException
 import sys
 '''
 5.	Write a program using this class and these functions that prompts the user
@@ -50,16 +50,31 @@ def parse_interval_input(input_string):
     return interval(input_string)
 
 def interval_list_to_string(intervals):
-    return intervals_to_strings(intervals).join(", ")
+    return ", ".join(intervals_to_strings(intervals))
 
 def parse_interval_list_input(input_string):
     '''Parse a list of intervals'''
     exit_if_input_quit(input_string)
-
+    pieces = input_string.split(',')
+    intervals = []
+    while len(pieces) > 1:
+        piece1 = pieces.pop(0)
+        piece2 = pieces.pop(0)
+        intvl = interval("%s,%s" % (piece1, piece2))
+        intervals.append(intvl)
+    return intervals
 
 def run():
-    intervals_string = ask_for_interval_list()
-    intervals = parse_interval_list_input(intervals_string)
+    try:
+        intervals_string = ask_for_interval_list()
+        intervals = parse_interval_list_input(intervals_string)
+    except IntervalParseException, InvalidIntervalException:
+        print "Invalid interval list. Please try again."
+        run()
+    else:
+        insert_interval_loop(intervals)
+
+def insert_interval_loop(intervals):
     while (True):
         try:
             input_string = ask_for_interval()
@@ -67,7 +82,7 @@ def run():
             intervals = insert(intervals, newint)
             print interval_list_to_string(intervals)
 
-        except IntervalParseException:
+        except (IntervalParseException, InvalidIntervalException):
             print "Invalid interval"
 
         except Exception as e:
