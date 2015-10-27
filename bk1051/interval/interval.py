@@ -229,11 +229,6 @@ def mergeIntervals(int1, int2):
     '''Function to merge two intervals. If they overlap or are adjacent, then
     return the merged interval. If they cannot be merged, throw an
     IntervalMergeException.
-
-    Note that, per the assignment, merging [3, 13] with (2, 12) produces [3, 13]
-    NOT (2, 13], as might be expected (since sorting by lower bound implies that
-    an open bound on 2 is less than a closed bound on 3, as would also make
-    sense if we were to extend this class to include non-integers).
     '''
 
     # Test each interval to see if it contains the minimum integer in the other
@@ -247,32 +242,6 @@ def mergeIntervals(int1, int2):
     upper_bound = None
     upper_is_inclusive = None
 
-    # First, if one interval contains the other, return the containing interval
-    int1_contains_int2 = int1.contains(int2.min_integer()) and int1.contains(int2.max_integer())
-    int2_contains_int1 = int2.contains(int1.min_integer()) and int2.contains(int1.max_integer())
-
-    if int1 == int2:
-        return int1
-    else:
-        if int1_contains_int2 and not int2_contains_int1:
-            return int1
-        elif int2_contains_int1 and not int1_contains_int2:
-            return int2
-        elif int1_contains_int2 and int2_contains_int1:
-            # Each contains the other, but they are not equal. This means
-            # the actual numbers in the intervals are the same, but the inclusiveness
-            # is different
-            lower_bound = max(int1.lower_bound, int2.lower_bound)
-            lower_is_inclusive = max(int1.lower_is_inclusive, int2.lower_is_inclusive)
-            upper_bound = min(int1.upper_bound, int2.upper_bound)
-            upper_is_inclusive = max(int1.upper_is_inclusive, int2.upper_is_inclusive)
-            return interval(interval_to_string((
-                        lower_is_inclusive,
-                        lower_bound,
-                        upper_bound,
-                        upper_is_inclusive
-                    )))
-
     if int1.contains(int2.min_integer()) or int1.contains(int2.min_integer() - 1) or \
         int2.contains(int1.min_integer()) or int2.contains(int1.min_integer() - 1):
         # Intervals are overlapping or adjacent. Now we need to figure out which
@@ -283,6 +252,7 @@ def mergeIntervals(int1, int2):
             lower_bound, lower_is_inclusive = int1.lower_bound, int1.lower_is_inclusive
         else:
             lower_bound, lower_is_inclusive = int2.lower_bound, int2.lower_is_inclusive
+
 
     if int1.contains(int2.max_integer()) or int1.contains(int2.max_integer() + 1) or \
         int2.contains(int1.max_integer()) or int2.contains(int1.max_integer() + 1):
