@@ -1,4 +1,4 @@
-from interval import *
+from interval import interval, intervals_to_strings, insert, IntervalParseException
 import sys
 '''
 5.	Write a program using this class and these functions that prompts the user
