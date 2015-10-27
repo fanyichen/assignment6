@@ -82,14 +82,14 @@ class Assignment6TestCase(unittest.TestCase):
         print intervals_to_strings(interval_list)
         print interval_list_to_string(interval_list)
         self.assertEqual(interval_list_to_string(interval_list),
-            "[-10,-7], (-4,1], [3,13), [15,24]")
+            "[-10,-7], (-4,1], (2,13), [15,24]")
 
         newint = parse_interval_input("(-7,-2]")
         interval_list = insert(interval_list, newint)
         print intervals_to_strings(interval_list)
         print interval_list_to_string(interval_list)
         self.assertEqual(interval_list_to_string(interval_list),
-            "[-10,1], [3,13), [15,24]")
+            "[-10,1], (2,13), [15,24]")
 
         newint = parse_interval_input("[-2,5]")
         interval_list = insert(interval_list, newint)
