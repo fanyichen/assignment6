@@ -15,18 +15,10 @@ class MalformedInterval(Exception):
 
 class interval(object):
 
-	# Implementation decision: Always prefer closed intervals over open intervals when possible. 
-	# Since the class is defined for ranges of integers, the intervals (2,5) and [3,4] are equivalent.
-	# Whenever the class has to decide between using (2,5) and [3,4], always choose [3,4]. 
-
-
 	valid_lower_bounds = '[('
 	valid_upper_bounds = '])'
 	inclusive_bounds = '[]'
 	exclusive_bounds = '()'
-
-	def __repr__(self):
-		return '{}{},{}{}'.format(self.lower_bound,self.lower_limit,self.upper_limit,self.upper_bound)	
 
 	def __init__(self,str_representation):
 		
@@ -61,6 +53,13 @@ class interval(object):
 	def __repr__(self):
 			return 'Interval{}{},{}{}'.format(self.lower_bound,self.lower_limit,self.upper_limit,self.upper_bound)	
 
+
+class intervalInt(interval):
+	''' Special class of interval composed of integers '''
+	# Implementation decision: Always prefer closed intervals over open intervals when possible. 
+	# Since the class is defined for ranges of integers, the intervals (2,5) and [3,4] are equivalent.
+	# Whenever the class has to decide between using (2,5) and [3,4], always choose [3,4]. 
+
 	def max_element(self):
 		if self.upper_bound == ')':
 			return self.upper_limit - 1
@@ -73,71 +72,89 @@ class interval(object):
 			return self.lower_limit
 
 	def __eq__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 
 		return self.max_element() == other.max_element() and self.min_element() == other.min_element()
 
 	def __ne__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 
 		return not self.__eq__(other)
 
 	def __lt__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 		
 		return self.min_element() < other.min_element()
 
 	def __gt__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 		return self.min_element() > other.min_element()
 	def __le__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 		return self.min_element() <= other.min_element()
 	def __ge__(self,other):
-		if not isinstance(other,interval):
-			raise TypeError('Comparison must be done against an instance of interval class')
+		if not isinstance(other,intervalInt):
+			raise TypeError('Comparison must be done against an instance of intervalInt class')
 		return self.min_element() >= other.min_element()
 
 
-
 	def isin(self, other_interval):
-		if not isinstance(other_interval,interval):
-			raise TypeError('Argument must be instance of interval class')
+		if not isinstance(other_interval,intervalInt):
+			raise TypeError('Argument must be instance of intervalInt class')
 		
 		return self.min_element() >= other_interval.min_element() and self.max_element() <= other_interval.max_element()
 
 	
 	def overlaps_with(self, interval_to_compare_with):
-		if not isinstance(interval_to_compare_with,interval):
-			raise TypeError('Argument must be instance of interval class')
+		if not isinstance(interval_to_compare_with,intervalInt):
+			raise TypeError('Argument must be instance of intervalInt class')
 
-		return interval('[{},{}]'.format(self.min_element(),self.min_element())).isin(interval_to_compare_with) \
-			or interval('[{},{}]'.format(self.max_element(),self.max_element())).isin(interval_to_compare_with)
+		return intervalInt('[{},{}]'.format(self.min_element(),self.min_element())).isin(interval_to_compare_with) \
+			or intervalInt('[{},{}]'.format(self.max_element(),self.max_element())).isin(interval_to_compare_with)
 
 
 
-def mergeIntervals(int1,int2):
-	if not isinstance(int1,interval) or not isinstance(int2,interval):
-		raise TypeError('Both arguments must be instances of interval class')
+def mergeIntIntervals(int1,int2):
+	if not isinstance(int1,intervalInt) or not isinstance(int2,intervalInt):
+		raise TypeError('Both arguments must be instances of intervalInt class')
 
-	if not int1.overlaps_with(int2) or int1.max_element == (int2.min_element-1) \
-		or int2.max_element == (int1.min_element-1):
+	if not int1.overlaps_with(int2) or int1.max_element() == (int2.min_element()-1) \
+		or int2.max_element() == (int1.min_element()-1):
 		raise ValueError('Intervals are neither overlapping nor adjacent, therefore they cannot be merged')
 
 
-	min(int1.min_element, int2.min_element)
-
-
 	merged_lower_limit = min(int1.min_element,int2.min_element)
-	merged_lower_bound = 
-	return interval('{}{},{}{}')
+	merged_lower_bound = 1
+	return intervalInt('[{},{}]'.format( min(int1.min_element(),int2.min_element()), \
+					max(int1.max_element(),int2.max_element())))
+
+def mergeIntOverlapping(intervals):
+	for interval_instance in intervals:
+		if not isinstance(interval_instance,intervalInt) 
+			raise TypeError('All values in the list must be instances of intervalInt class')
+	merged = []
+	if len(intervals) == 2:
+		try:
+			merged = mergeIntIntervals(intervals[0],intervals[1])
+		except ValueError:
+			merged = intervals
+		finally:
+			return merged
+	else:
+		merged = mergeIntOverlapping(intervals[:-1])
+		
+
+	
 
 
+
+	merged_intervals = intervals
+	while 1:
 
 
 
