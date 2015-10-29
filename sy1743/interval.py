@@ -51,7 +51,6 @@ def mergeIntervals(int1, int2):
     If the two intervals overlap or are adjacent, it returns a merged interval,
     which is the union of these two intervals. """
 
-
     if canMerge(int1, int2) == False:
          raise ValueError('Disjoint intervals!') # raise exception if two intervals are disjoint.
     if int1.mod_lower <= int2.mod_lower and int1.lower <= int2.lower:   # pick lower bound. For example, '(2' and '[3'

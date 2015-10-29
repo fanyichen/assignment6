@@ -2,6 +2,7 @@ import interval
 import sys
 from interval import mergeIntervals, mergeOverlapping, insert, canMerge, interval
 
+
 try:
 
 
@@ -29,5 +30,7 @@ try:
             str_result = [str(i) for i in result]
             print ', '.join(str_result)
 
-except KeyboardInterrupt, EOFError, ValueError:
+except KeyboardInterrupt, ValueError:
+    print "\n Interrupted!"
+except EOFError:
     print "\n Interrupted!"
