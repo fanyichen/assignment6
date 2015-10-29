@@ -46,8 +46,7 @@ class interval(object):
         else:
             print "wrong interval:",intRappresentation
             errorMessage=self.intRappresentation," is not a valid interval"
-            raise NotValidBoundError(errorMessage)
-            #raise Exception('Not Valid interval!\n The first number of the interval should be the lowest one')  
+            raise NotValidBoundError(errorMessage) 
         self.lowerBound=int(self.numbers[0])
         self.upperBound=int(self.numbers[1])       
  
@@ -114,6 +113,7 @@ class interval(object):
     
     def getIntRappresentation(self):
         return self.intRappresentation
+    
     def setIntRappresentation(self, intRappresentation):
         self.intRappresentation = intRappresentation
 

@@ -22,6 +22,9 @@ def parseInput(inputIntervals):
     return validatedIntervals   
 
 def start():
+    """
+    This function manage the input from the user and the consequent flow. 
+    """
     intervals=[]
     try:        
         while len(intervals)==0:
