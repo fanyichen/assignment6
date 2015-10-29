@@ -1,5 +1,7 @@
 from intervals import *
 
+
+
 def add_input(interval_list,user_input):
 	user_interval = intervalInt(user_input)
 	interval_list_tmp = interval_list[:]
@@ -22,6 +24,16 @@ if __name__ == '__main__':
 	user_input = ' '
 	interval_list = []
 	try:
+		user_input = raw_input('List of Intervals? ')
+		user_intervals_str = user_input.split(', ')
+		user_intervals_str = [interval.strip() for interval in user_intervals_str]
+		for user_intervals in user_intervals_str:
+			try:
+				interval_list = add_input(interval_list,user_intervals)
+			except MalformedInterval, InvalidInterval:
+				#If the interval from the user is not valid, do nothing and continue
+				pass
+			
 		while 1:
 			
 			try:
