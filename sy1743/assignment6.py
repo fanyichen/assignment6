@@ -14,7 +14,8 @@ try:
             break
         except ValueError:
             print "Invalid Intervals.Expected input format: [1,2], [3,4]"
-
+        except IndexError:
+            print "empty input!"
     while True:
         y = raw_input('Intervals? ')
         if y == 'quit':
