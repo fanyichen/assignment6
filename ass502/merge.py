@@ -1,0 +1,80 @@
+"""contains all functions/user-defined exceptions related to merging intervals"""
+
+from interval import interval
+
+#create variables to represent indices of the list returned by getMinMaxInterval
+minimum=0
+maximum=1
+
+def mergeIntervals(int1,int2):
+	"""merges two intervals if they can be merged, if not raise user defined MergeException"""
+	
+	#they won't merge if the largest integer in one interval is more than one away from the smallest integer in the other interval
+	if getMinMax(int1)[maximum] < getMinMax(int2)[minimum]-1 or getMinMax(int2)[maximum] < getMinMax(int1)[minimum]-1:
+		raise MergeException()
+	else: #if they can merge, create an instance of the merged interval
+		return interval('['+str(min(getMinMax(int1)[minimum],getMinMax(int2)[minimum]))+','+str(max(getMinMax(int1)[maximum],getMinMax(int2)[maximum]))+']')
+		
+		
+		
+def getMinMax(interval):
+	"""finds the minimum integer and maximum integer in an interval"""
+	
+	if interval.lowerInclusive:
+		minimum=interval.lowerInteger
+	else:
+		minimum=interval.lowerInteger+1
+	if interval.upperInclusive:
+		maximum=interval.upperInteger
+	else:
+		maximum=interval.upperInteger-1
+		
+	return([minimum,maximum])
+	
+def mergeOverlappingIntervals(intervals):
+	"""repeatedly merges a list of intervals until all intervals in the list are non-overlapping"""
+
+	#first we sort the intervals by the smallest integer in the interval, in increasing order
+	sortedIntervals=bubbleSort(intervals)
+	
+	if len(intervals)>1:
+		try:
+			#if the first two intervals can merge, merge them and create a new list with the merged interval and the remaining intervals, then pass it to mergeOverlappingIntervals
+			merged=mergeIntervals(sortedIntervals[0],sortedIntervals[1])
+			return mergeOverlappingIntervals([merged]+sortedIntervals[2:len(intervals)])
+		except MergeException:
+			#if the first two intervals cannot merge, append the first interval to our final list and apply mergeOverlappingIntervals to the remaining intervals, appending the result to the final list
+			return [sortedIntervals[0]]+mergeOverlappingIntervals(sortedIntervals[1:len(intervals)])
+	else:
+		return intervals
+
+	
+def bubbleSort(intervals):	
+	"""standard implementation of bubble sort, comparing the smallest integer in each interval"""
+	
+	for i in range(len(intervals)):
+		for j in range(len(intervals)-1-i):
+			if getMinMax(intervals[j])[minimum]>getMinMax(intervals[j+1])[minimum]:
+				intervals[j],intervals[j+1]=intervals[j+1],intervals[j]
+	
+	return intervals
+	
+def insert(intervals, newint):
+	"""inserts a new interval into a list of non-overlapping intervals, merging when possible. an exception is thrown if the intervals do overlap"""
+
+	#assuming intervals is sorted, we check each pair of adjacent intervals for overlaps
+	for i in range(0,len(intervals)-1):
+		if getMinMax(intervals[i])[maximum]+1>=getMinMax(intervals[i+1])[minimum]:
+			raise OverlapException()
+	#if there are no overlaps we can use mergeOverlappingIntervals to merge the list
+	return mergeOverlappingIntervals(intervals+[newint])
+	
+class MergeException(Exception):
+	"""exception if intervals cannot merge, because they do not overlap and are not adjacent"""
+	def __str__(self):
+		return 'The intervals cannot merge'
+		
+class OverlapException(Exception):
+	"""exception if intervals overlap"""
+	def __str__(self):
+		return 'The intervals overlap'
