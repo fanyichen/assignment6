@@ -38,7 +38,7 @@ class assignment6_test(TestCase):
 	def test_mergeIntervals_merge_success_adjacent(self):
 		self.assertTrue(dealWithInterval.mergeIntervals('(3,6]','[7,11)'), '(3,11)')
 
-	#test two non-overlapping or adjacent intervals merge failed
+	#test two non-overlapping or non-adjacent intervals merge failed
 	def test_mergeIntervals_merge_fail(self):
 		self.assertRaises(merge_bad, lambda: dealWithInterval.mergeIntervals('(3,5]','[8,11)'))
 

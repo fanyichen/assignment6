@@ -4,7 +4,7 @@ import userExceptions
 from userExceptions import interval_bad_leftbound, interval_bad_rightbound, interval_bad_invalidbound, interval_bad_zero, interval_bad_nocomma
 
 class interval():
-"""create a class to understand the real interval and print the right format"""
+	'''create a class to understand the real interval and print the right format'''
 
 	def __init__(self,intervalInput):
 
@@ -43,7 +43,8 @@ class interval():
 			raise interval_bad_zero()
 
 	def realLower(self):
-	'''get the real lower bound of the interval'''
+		'''get the real lower bound of the interval'''
+
 		if self.leftBound == '[':
 			self.realLowerBound = int(self.lowerBound)
 			return self.realLowerBound
@@ -53,6 +54,7 @@ class interval():
 
 	def realUpper(self):
 		'''get the real upper bound of the interval'''
+
 		if self.rightBound == ']':
 			self.realUpperBound = int(self.upperBound) 
 			return self.realUpperBound
@@ -62,10 +64,12 @@ class interval():
 
 	def realInterval(self):
 		'''get the real interval'''
+
 		self.realIntervalInput = np.arange(self.realLower(), self.realUpper()+1)
 		return self.realIntervalInput
 
 	def __repr__(self):
 		'''print the right format for the interval'''
+		
 		return '%s%d,%d%s' % (self.leftBound, int(self.lowerBound), int(self.upperBound), self.rightBound)
 
