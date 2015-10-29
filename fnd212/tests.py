@@ -40,3 +40,4 @@ class IntervalsTest(TestCase):
     		interval_list = add_input(interval_list, interval_instance)
     	print interval_list
     	self.assertEqual(interval_list,self.reduced_valid_intervals)
+    	
