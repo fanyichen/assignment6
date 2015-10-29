@@ -4,8 +4,6 @@ from interval import mergeIntervals, mergeOverlapping, insert, canMerge, interva
 
 
 try:
-
-
     while True:
         x = raw_input('List of intervals? ')
         if x == 'quit':
