@@ -1,5 +1,6 @@
-from  assignment6 import NotValidBoundError
-from  assignment6 import interval
+from  interval import NotValidBoundError
+from  interval import interval
+import sys
 
 def parseInput(inputIntervals):
     """
