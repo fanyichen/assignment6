@@ -71,8 +71,10 @@ def mergeIntervals(int1, int2):
 
 
 def mergeOverlapping(intervals):
+    
     """ mergeOverlapping takes a list of intervals.
     And merge all overlapping intervals. """
+    
     intervals.sort(key = lambda x:x.lower)                             # sort intervals by their lower bounds
     if len(intervals) == 0 or len(intervals) == 1:                     # base case for recursion
         return intervals
@@ -86,8 +88,10 @@ def mergeOverlapping(intervals):
 
 
 def insert(intervals, newint):
+    
     """insert function takes two arguments: a list of non-overlapping intervals,
     and a single interval. The function should insert an interval into lists of intervals. """
+    
     intervals.append(newint)
     return mergeOverlapping(intervals)
 
