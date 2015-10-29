@@ -14,7 +14,8 @@ class MalformedInterval(Exception):
 
 
 class interval(object):
-	'''Generic interval class, support for integer intervals as well as float intervals'''
+	'''Generic interval class, support for integer intervals as well as float intervals
+		Instance attributes: lower_bound, upper_bound, lower_limit and upper_limit'''
 
 	valid_lower_bounds = '[('
 	valid_upper_bounds = '])'
@@ -58,7 +59,8 @@ class interval(object):
 
 
 class intervalInt(interval):
-	''' Special sub-class of interval composed of integers '''
+	''' Special sub-class of interval composed of integers (if float numbers specified, will be casted to input).
+	Methods: max_element(), min_element(), isin(other_interval), overlaps_with(other_interval)'''
 	# Implementation decision: Always prefer closed intervals over open intervals when possible. 
 	# Since the class is defined for ranges of integers, the intervals (2,5) and [3,4] are equivalent.
 	# Whenever the class has to decide between using (2,5) and [3,4], will always choose [3,4]. 
@@ -128,13 +130,14 @@ class intervalInt(interval):
 		return self.min_element() >= other_interval.min_element() and self.max_element() <= other_interval.max_element()
 
 	def overlaps_with(self, interval_to_compare_with):
-		'''Determine if the interval overlaps with the passed interval. 
+		'''Determine if the interval overlaps with the argument interval. 
 		If the argument is not an intervalInt instance, a TypeError exception is raised'''
 		if not isinstance(interval_to_compare_with,intervalInt):
 			raise TypeError('Argument must be instance of intervalInt class')
 
 		return intervalInt('[{},{}]'.format(self.min_element(),self.min_element())).isin(interval_to_compare_with) \
-			or intervalInt('[{},{}]'.format(self.max_element(),self.max_element())).isin(interval_to_compare_with)
+			or intervalInt('[{},{}]'.format(self.max_element(),self.max_element())).isin(interval_to_compare_with) \
+			or interval_to_compare_with.isin(self)
 
 
 
@@ -162,12 +165,16 @@ def mergeIntOverlapping(intervals):
 	for interval_instance in intervals:
 		if not isinstance(interval_instance,intervalInt): 
 			raise TypeError('All values in the list must be instances of intervalInt class')
-	
+
+	if len(intervals)<=1:
+		#If there are no intervals to merge, return a copy of the list
+		return intervals[:]
+
 	intervals_tmp = sorted(intervals)	#work with intervals_tmp instead of intervals
 										#to avoid modifying the original list.
 	merged = [intervals_tmp[0]]
 
-	for interval_instance in intervals_tmp: 
+	for interval_instance in intervals_tmp[1:]: 
 		#Try to merge, if not possible, append to the merged list. 
 		try:
 			merged[-1]=mergeIntIntervals(merged[-1],interval_instance)
@@ -176,12 +183,15 @@ def mergeIntOverlapping(intervals):
 	return merged
 
 def insert(intervals,newint):
+	''' Takes as input a list of intervals (intervals) and a new interval (newint). 
+	Inserts the new interval in an ordered way and merges all overlapping intervals, if any.
+	If inline is set to True, the received list will be modified'''
 	if not isinstance(intervals,list): 
 		raise TypeError('intervals argument must be a list')
 	if not isinstance(newint,intervalInt):
-		raise TypeError('newint argument must be an instance of itervalInt')
+		raise TypeError('newint argument must be an instance of intervalInt')
 
-	intervals_tmp = intervals 	#work with intervals_tmp instead of intervals
+	intervals_tmp = intervals[:] 	#work with intervals_tmp instead of intervals
 								#to avoid modifying the original list.
 	intervals_tmp.append(newint)
 	
