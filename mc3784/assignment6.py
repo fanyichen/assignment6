@@ -33,10 +33,15 @@ class interval(object):
             goodInterval=True
         else:
             print "wrong interval:",intRappresentation
-            raise Exception('Not Valid interval!')  
+            raise Exception('Not Valid interval!\n The first number of the interval should be the lowest one')  
         self.lowerBound=int(self.numbers[0])
         self.upperBound=int(self.numbers[1])       
-    
+
+    # The two interval can overlap in 4 different ways:
+    # The first interval starts before the second one
+    # The second interval starts after the second one
+    # The first interval contains the second one
+    # The first interval is contained by the second one   
     def mergeIntervals(self, int1,int2):
         leftBracket=""
         rightBracket=""
@@ -44,29 +49,28 @@ class interval(object):
         intervalList2 = self.fromIntervalToList(int2)
         mergedInterval=""
         if not (len(set(intervalList1).intersection(intervalList2))!= 0 or intervalList1[-1]==intervalList2[0]-1 or intervalList1[0]==intervalList2[-1]-1):
-            raise Exception('Intervals not mergeble!')    
-        #First interval less than second:
+            raise Exception('Intervals not mergeable!')         
         if float(intervalList1[-1])>=float(intervalList2[0]-1) and  float(intervalList2[-1])>= float(intervalList1[-1]-1) and float(intervalList1[0])<float(intervalList2[0]):
             leftBracket="[" if int1.leftInclusive else "("
             rightBracket="]" if int2.rightInclusive else ")"
             mergedInterval=leftBracket+str(int1.lowerBound)+","+str(int2.upperBound)+rightBracket
-
-        if float(intervalList2[-1])>=float(intervalList1[0]) and  float(intervalList1[-1])>= float(intervalList2[-1]) and float(intervalList2[0])<float(intervalList1[0]):
+        elif float(intervalList2[-1])>=float(intervalList1[0]) and  float(intervalList1[-1])>= float(intervalList2[-1]) and float(intervalList2[0])<float(intervalList1[0]):
             leftBracket="[" if int2.leftInclusive else "("
             rightBracket="]" if int1.rightInclusive else ")"
-            mergedInterval=leftBracket+str(int2.lowerBound)+","+str(int1.upperBound)+rightBracket
- 
-        if float(intervalList1[0])<=float(intervalList2[0]) and  float(intervalList1[-1])>=float(intervalList2[-1]):
+            mergedInterval=leftBracket+str(int2.lowerBound)+","+str(int1.upperBound)+rightBracket 
+        elif float(intervalList1[0])<=float(intervalList2[0]) and  float(intervalList1[-1])>=float(intervalList2[-1]):
             leftBracket="[" if int1.leftInclusive else "("
             rightBracket="]" if int1.rightInclusive else ")"
             mergedInterval=leftBracket+str(int1.lowerBound)+","+str(int1.upperBound)+rightBracket
-            
-        if float(intervalList2[0])<=float(intervalList1[0]) and  float(intervalList2[-1])>=float(intervalList1[-1]):
+        elif float(intervalList2[0])<=float(intervalList1[0]) and  float(intervalList2[-1])>=float(intervalList1[-1]):
             leftBracket="[" if int2.leftInclusive else "("
             rightBracket="]" if int2.rightInclusive else ")"
-            mergedInterval=leftBracket+str(int2.lowerBound)+","+str(int2.upperBound)+rightBracket         
+            mergedInterval=leftBracket+str(int2.lowerBound)+","+str(int2.upperBound)+rightBracket
         return mergedInterval    
 
+    # The list of intervals is checked taking two intervals at the time and trying to merging them. 
+    # If the merge is successful the two intervals are replaced by the merged interval. 
+    # Otherwise they are simply copied in the newIntervalList.
     def mergeOverlapping(self,intervals):
         numberOfIntervals=len(intervals)
         intervals=sorted(intervals)  
@@ -83,15 +87,12 @@ class interval(object):
                     newIntervalList.append(intervals[i+1])
                     newIntervalIndex=newIntervalIndex+1
         return newIntervalList
-
-
     
     def getIntRappresentation(self):
         return self.intRappresentation
     def setIntRappresentation(self, intRappresentation):
         self.intRappresentation = intRappresentation
-        
-  
+
     def fromIntervalToList(self,intervalToParse):
         boundsInt=intervalToParse.intRappresentation.replace(')','').replace('(','').replace(']','').replace('[','').split(",")
         if not intervalToParse.leftInclusive:
@@ -101,58 +102,32 @@ class interval(object):
         #print boundsInt   
         return list( range(int(float(boundsInt[0])),int(float(boundsInt[1])))) 
 
-    def getLowerBound(self):
-        return self.lowerBound
-    
     def insert(self,intervals, newint):
         intervalsString=""
         for i in range(len(intervals)):
-            intervalsString=intervalsString+intervals[i].intRappresentation+","
-        #print intervalsString    
+            intervalsString=intervalsString+intervals[i].intRappresentation+"," 
         intervalsString=intervalsString+newint  
-        #print intervalsString
         intervalsParsed=parseInput(intervalsString)  
-        #print "intervalsParsed: ",intervalsParsed
         newListIntervals=self.mergeOverlapping(intervalsParsed)
         return newListIntervals
-        
-    
-    
-    
+
     def __cmp__(self, other):
         if hasattr(other, 'lowerBound'):
             return self.lowerBound.__cmp__(other.lowerBound)
-
-    
+   
 def parseInput(inputIntervals):
     validatedIntervals=[]
     intervals=inputIntervals.replace('),', ')*').replace('],',']*').split('*')
     if inputIntervals.strip('0123456789(,)[]- ') or inputIntervals=="":
         print "wrong format for interval string"
         print "The input string should be like this:\n [-10,-7], (-4,1], [3,6), (8,12), [15,23]"
-        #sys.exit()
+        sys.exit()
     else:
         for intervalInList in intervals:
             intervalInstance = interval(intervalInList.strip())
             validatedIntervals.append(intervalInstance)   
     return validatedIntervals   
  
-    
-"""
-def start():
-    intervals=[]
-    try:     
-        inputIntervals = raw_input("List of intervals?")   
-        intervals=parseInput(inputIntervals) 
-        newIntervalList = intervals[0].mergeOverlapping(intervals)
-        print "Intervalli nel nuovo caso:"
-        for i in range(len(newIntervalList)):
-            print newIntervalList[i].intRappresentation
-        
-    except Exception, e: # catch *all* exceptions  
-        print "exception: ", e 
-
-"""
 def start():
     intervals=[]
     try:        
@@ -167,7 +142,6 @@ def start():
                 userViewString=""
                 for i in range(len(newIntervalList)):
                     userViewString+=newIntervalList[i].intRappresentation+","
-                #userViewString += "," if i<len(newIntervalList) else "," 
                 print userViewString[:-1]
             
         while True: 
@@ -183,12 +157,8 @@ def start():
             for i in range(len(newIntervals)):
                 userViewStringSecond += newIntervals[i].intRappresentation+","    
             print userViewStringSecond[:-1]    
-    except Exception, e: # catch *all* exceptions  
+    except Exception, e: 
         print "exception: ", e 
-
-            
-            
-
 
 if __name__ == '__main__':
     start()
