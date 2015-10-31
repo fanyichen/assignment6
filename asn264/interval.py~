@@ -1,0 +1,126 @@
+#This Exception is generally raised when poorly formatted or empty intervals are passed to the interval constructor. 
+class InvalidIntervalError(Exception):
+	def __str__(self):
+		return "Invalid interval."
+
+class interval(object):
+
+	def __init__(self, input):
+        	#Strip any surrounding whitespace
+	        input = input.strip()
+ 		#Ensure the input is in the correct format
+		if self.check_format(input):
+			#Ensure the bounds create a non-empty interval
+			if self.check_valid_bounds(input):
+				#Assign instance variables
+				self.upper = self.find_upper_bound(input)
+				self.upper_inc = self.find_upper_inc(input)
+				self.lower = self.find_lower_bound(input)
+				self.lower_inc = self.find_lower_inc(input)
+			#Don't accept boundary errors
+			else:
+       		        	raise InvalidIntervalError
+		else:
+			#Don't accept formatting error
+			raise InvalidIntervalError
+
+    #Define equality
+	def __eq__(self, other):
+		if isinstance(other, self.__class__):
+			return self.__dict__ == other.__dict__
+		else:
+			return False
+    
+	#Check that the input string is in the correct format
+	def check_format(self, input_string):
+		return self.check_endpoints(input_string) and self.check_commas(input_string) and self.check_integ(input_string)
+	
+	#Parse the input string and make sure the interval is enclosed by "(", "[", ")", "]"
+	def check_endpoints(self, input_string):
+		if input_string[0] in ("(", "[") or input_string[-1] in (")", "]"):
+			return True
+		else:
+			return False
+		
+	#Make sure there is exactly one comma.
+	def check_commas(self, input_string):
+		if input_string.count(",") == 1:
+			return True
+		else:
+			return False
+			
+	#Check that all characters besides one comma and the enclosing parentheses/brackets are integers
+	def check_integ(self, input_string):
+		if input_string[1:self.find_comma_index(input_string)].strip().isdigit() and input_string[self.find_comma_index(input_string)+1:-1].strip().isdigit():
+			return True
+		else: 
+			return False
+			
+	#Find the location of the (first) comma in the string
+	def find_comma_index(self, input_string):
+		return input_string.index(",")
+	
+	#Assign a Boolean to represent inclusive or exclusive lower bounds
+	def find_lower_inc(self, input_string):
+		if input_string[0] == "[":
+			return True
+		else:
+			return False
+			
+	#Assign a Boolean to represent inclusive or exclusive upper bounds
+	def find_upper_inc(self, input_string):
+		if input_string[-1] == "]":
+			return True
+		else:
+			return False 
+	
+	#Find the integer values for the lower bound
+	def find_lower_bound(self, input_string):
+		return int(input_string[1:self.find_comma_index(input_string)].strip())
+
+	#Find the integer values for the upper bound
+	def find_upper_bound(self, input_string):
+		return int(input_string[self.find_comma_index(input_string)+1:-1].strip())
+
+    #Check that the interval provided is non-empty and legal 
+	def check_valid_bounds(self, input_string):
+
+		'''
+		If both bounds are inclusive, make sure the interval is non-empty by ensuring that lower_bound <= upper_bound 
+		If both bounds are exclusive, make sure the interval is non-empty by ensuring that lower_bound < upper_bound - 1
+		If there is one inclusive bound and one exclusive bound, make sure the interval is non-empty by making sure lower_bound < upper_bound
+		'''
+		
+		if self.find_lower_inc(input_string) == True and self.find_upper_inc(input_string) == True:	                
+			if self.find_lower_bound(input_string) > self.find_upper_bound(input_string):
+				return False
+			else:
+				return True
+				
+		elif self.find_lower_inc(input_string) == False and self.find_upper_inc(input_string) == False:
+			if self.find_lower_bound(input_string) >= self.find_upper_bound(input_string) - 1:
+				return False
+			else: 
+				return True
+
+		else:
+			if self.find_lower_bound(input_string) >= self.find_upper_bound(input_string):
+				return False
+			else:
+				return True
+
+	#Define print for interval object
+	def __repr__(self):
+		left_enc = "[" if self.lower_inc == True else "("
+		right_enc = "]" if self.upper_inc == True else ")"
+		return left_enc + str(self.lower) + "," + str(self.upper) + right_enc
+
+	#Returns the smallest integer in the interval. For (1,5) this is 2.
+	def get_min(self):
+		return self.lower if self.lower_inc == True else self.lower+1
+
+	#Returns the largest integer in the interval. For (1,5) this is 4.
+	def get_max(self):
+		return self.upper if self.upper_inc == True else self.upper-1 
+
+
