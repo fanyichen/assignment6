@@ -1,0 +1,113 @@
+"""Offers interactive interval creation and merging to the user at prompt"""
+
+from process import *
+"""from interval import *
+from merge import *
+import sys"""
+
+def loop():
+
+	validListInput=False
+
+	#until we receive a valid list of intervals as input, we prompt the user for one
+	while not validListInput:
+		listInput=getListInput()
+		
+		intervals=[]
+
+		#while there is input remaining to be processed, we process and validate it
+		#listInputRemaining=True
+		while(len(listInput)>0):
+			parseList(listInput,intervals,validListInput)
+	
+	#merge our list of intervals, so that it can be passed to insert()
+	intervals=mergeOverlappingIntervals(intervals)
+
+	validIntervalInput=False
+	#until we receive a valid interval to insert, we prompt the user for one
+	while not validIntervalInput:
+		intervalInput=getIntervalInput()
+		insertInput(intervalInput)
+"""
+def loop2():
+	validListInput=False
+	#until we receive a valid list of intervals as input, we prompt the user for one
+	while not validListInput: 
+		try:
+			listInput=raw_input("List of intervals? ")
+			listInput=listInput.replace(" ","") #remove whitespace
+		except (KeyboardInterrupt,EOFError): #catch ctrl-c and ctrl-d, quit on these inputs
+			sys.exit()
+		
+		if listInput=="quit": #normal way to exit the program
+			sys.exit()	
+
+		intervals=[]
+		#while there is input remaining to be processed, we process and validate it
+		listInputRemaining=True
+		while(listInputRemaining):
+			currentInterval=""
+			for i,c in enumerate(listInput):
+				#until we reach a right bound, create temp string containing the current interval
+				if c!=']' and c!=')': 
+					currentInterval+=c
+					if i==len(listInput)-1: #the last char in valid input must be a right bracket
+						listInputRemaining=False
+						print("Invalid list of intervals")
+				else:
+					#if the last char is a right bound, we have reached the end of the input 
+					#we only need to validate this last interval
+					if  i==len(listInput)-1:
+						currentInterval+=c
+						try:
+							intervals.append(interval(currentInterval))
+							validListInput=True
+						except (ValueError,IntervalException):
+							print("Invalid list of intervals")
+						listInputRemaining=False
+					#if the right bound is not the last char, check that the next char is a comma
+					#and check that there are character(s) after the comma
+					elif listInput[i+1]==',' and i+1<len(listInput)-1:
+						currentInterval+=c
+						try:
+							intervals.append(interval(currentInterval))
+						except (ValueError,IntervalException):
+							print("Invalid list of intervals")
+							listInputRemaining=False
+							break
+						#slice the list to include only the remaining part we haven't processed
+						listInput=listInput[i+2:len(listInput)]
+					else:
+						print("Invalid list of intervals")
+						listInputRemaining=False
+					break
+	#merge our list of intervals, so that it can be passed to insert()
+	intervals=mergeOverlappingIntervals(intervals)
+
+	validIntervalInput=False
+	#until we receive a valid interval to insert, we prompt the user for one
+	while not validIntervalInput:
+		try:
+			intervalInput=raw_input("Interval? ")
+			intervalInput=intervalInput.replace(" ","") #remove whitespace
+		except (KeyboardInterrupt,EOFError): #catch ctrl-c and ctrl-d, quit the program on these inputs
+			sys.exit()	
+		
+		if intervalInput=="quit": #normal way to exit the program
+			sys.exit()
+
+		try:
+			#once a valid interval is received, we insert it into our list and print the list
+			newint=interval(intervalInput)
+			intervals=insert(intervals,newint)
+			print(intervals)
+		except (ValueError,IntervalException):
+			print("Invalid interval")
+"""
+
+if __name__=="__main__":
+	try:
+		loop()
+	except EOFError:
+		pass
+			
